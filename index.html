@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sum Tool – Homepage — Powered by DeepSeek</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 640px; padding: 2.5rem 2rem; text-align: center; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
+    p { font-size: 1.125rem; line-height: 1.6; color: #4a556b; margin-bottom: 1rem; }
+    ul { list-style: none; margin: 1.5rem 0; text-align: left; display: inline-block; }
+    li { padding: 0.375rem 0; font-size: 1.0625rem; }
+    li::before { content: "✓ "; color: #19a974; font-weight: bold; }
+    code { background: #eef0f5; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.95em; }
+    .footer { margin-top: 1.5rem; font-size: 0.9rem; color: #8b95aa; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🧮 sum() – Smart Number Addition</h1>
+    <p style="font-size:0.85rem;color:#8b95aa;">Model: DeepSeek &bull; Version 1.0</p>
+    <p>
+      This tool provides a fast, tested <code>sum</code> function that adds up all numbers in an array.
+      Import it from <code>src/sum.js</code> and use it anywhere in your Node.js project.
+    </p>
+    <ul>
+      <li>Sum of any numeric array</li>
+      <li>Works with a single value</li>
+      <li>Zero‑dependency, lightweight</li>
+      <li>ES module ready</li>
+    </ul>
+    <p>
+      <strong>Example:</strong>
+      <br><code>import { sum } from "./src/sum.js";</code>
+      <br><code>sum([1, 2, 3])  // → 6</code>
+    </p>
+    <div class="footer">
+      Licensed under the MIT License &bull; Built with Node.js
+    </div>
+  </div>
+</body>
+</html>
