@@ -5,11 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐍 Snake</title>
   <style>
+    /* ----- Theme variables (dark = default) ----- */
+    :root {
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --board-bg: #0b1220;
+      --pill-bg: #1e293b;
+      --pill-strong: #4ade80;
+      --board-border: #334155;
+      --overlay-bg: rgba(8, 12, 22,  0.85);
+      --overlay-text: #94a3b8;
+      --cta-bg: #4ade80;
+      --cta-color: #06281a;
+      --help-color: #94a3b8;
+      --kbd-bg: #1e293b;
+      --kbd-border: #334155;
+      /* Canvas colors */
+      --c-bg: #0b1220;
+      --c-food: #f87171;
+      --c-head: #86efac;
+      --c-body-h: 145;
+      --c-body-s: 65;
+      --c-body-l: 50;
+      --c-eyes: #0b1220;
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f4f8;
+      --text: #1a202b;
+      --board-bg: #e8ecf2;
+      --pill-bg: #dce2ea;
+      --pill-strong: #1a8a4a;
+      --board-border: #c0c8d4;
+      --overlay-bg: rgba(240, 244, 248, 0.92);
+      --overlay-text: #5a6a7a;
+      --cta-bg: #2dba6a;
+      --cta-color: #fff;
+      --help-color: #5a6a7a;
+      --kbd-bg: #dce2ea;
+      --kbd-border: #c0c8d4;
+      --c-bg: #e8ecf2;
+      --c-food: #d44a4a;
+      --c-head: #1a8a4a;
+      --c-body-h: 145;
+      --c-body-s: 55;
+      --c-body-l: 55;
+      --c-eyes: #e8ecf2;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -17,35 +65,58 @@
       justify-content: center;
       gap: 0.75rem;
       padding: 1rem;
+      transition: background .25s, color .25s;
     }
     h1 { font-size: 1.4rem; }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
     .scores { display: flex; gap: 0.75rem; font-size: 0.95rem; }
-    .pill { background: #1e293b; border-radius: 999px; padding: 0.25rem 0.85rem; }
-    .pill strong { color: #4ade80; }
-    .board { position: relative; border: 1px solid #334155; border-radius: 0.75rem; overflow: hidden; }
+    .pill { background: var(--pill-bg); border-radius: 999px; padding: 0.25rem 0.85rem; }
+    .pill strong { color: var(--pill-strong); }
+    .theme-btn {
+      font: inherit;
+      font-size: 1.1rem;
+      line-height: 1;
+      background: var(--pill-bg);
+      border: 1px solid var(--board-border);
+      border-radius: 999px;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .theme-btn:active { transform: scale(0.93); }
+    .board { position: relative; border: 1px solid var(--board-border); border-radius: 0.75rem; overflow: hidden; }
     canvas { display: block; width: min(88vw, 460px); height: auto; touch-action: none; }
     .overlay {
       position: absolute; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem;
-      text-align: center; background: rgba(8, 12, 22, 0.85);
+      text-align: center; background: var(--overlay-bg);
+      transition: background .25s;
     }
     .overlay[hidden] { display: none; }
     .overlay h2 { font-size: 1.3rem; }
-    .overlay p { font-size: 0.9rem; color: #94a3b8; max-width: 24ch; }
+    .overlay p { font-size: 0.9rem; color: var(--overlay-text); max-width: 24ch; }
     .cta {
-      font: inherit; font-weight: 600; color: #06281a; background: #4ade80;
+      font: inherit; font-weight: 600; color: var(--cta-color); background: var(--cta-bg);
       border: none; border-radius: 0.6rem; padding: 0.5rem 1.4rem; cursor: pointer; margin-top: 0.25rem;
+      transition: background .2s, color .2s;
     }
     .cta:active { transform: scale(0.97); }
-    .help { font-size: 0.8rem; color: #94a3b8; text-align: center; line-height: 1.6; }
+    .help { font-size: 0.8rem; color: var(--help-color); text-align: center; line-height: 1.6; }
     kbd {
-      background: #1e293b; border: 1px solid #334155; border-bottom-width: 2px;
+      background: var(--kbd-bg); border: 1px solid var(--kbd-border); border-bottom-width: 2px;
       border-radius: 4px; padding: 0 0.35rem; font-family: inherit; font-size: 0.75rem;
     }
   </style>
 </head>
 <body>
-  <h1>🐍 Snake</h1>
+  <div class="header-row">
+    <h1>🐍 Snake</h1>
+    <button class="theme-btn" id="themeBtn" title="Toggle light / dark mode" aria-label="Toggle theme"></button>
+  </div>
 
   <div class="scores">
     <span class="pill">🍎 <strong id="score">0</strong></span>
@@ -81,6 +152,7 @@
     const actionBtn = document.getElementById("actionBtn");
     const scoreEl = document.getElementById("score");
     const bestEl = document.getElementById("best");
+    const themeBtn = document.getElementById("themeBtn");
 
     const KEYS = {
       ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
@@ -91,6 +163,39 @@
     let game = createGame({ cols: 20, rows: 20 });
     let best = 0;
     let lastStepAt = 0;
+
+    // ----- Theme persistence -----
+    const STORAGE_KEY = "snake-theme";
+
+    function getTheme() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "light" || stored === "dark") return stored;
+      // Respect OS preference for first visit.
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light" : "dark";
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem(STORAGE_KEY, theme);
+      updateThemeButton(theme);
+    }
+
+    function updateThemeButton(theme) {
+      themeBtn.textContent = theme === "dark" ? "🌙" : "🌒";
+    }
+ 
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      draw();
+    }
+
+    // ----- Canvas helpers -----
+
+    function cs(varName) {
+      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
 
     function cellSize() {
       return canvas.width / game.cols;
@@ -117,14 +222,21 @@
 
     function draw() {
       const size = cellSize();
+      const cBg = cs("--c-bg");
+      const cFood = cs("--c-food");
+      const cHead = cs("--c-head");
+      const cEyes = cs("--c-eyes");
+      const cBodyH = parseInt(cs("--c-body-h"),  10);
+      const cBodyS = parseInt(cs("--c-body-s"),  10);
+      const cBodyL = parseInt(cs("--c-body-l"),  10);
 
-      ctx.fillStyle = "#0b1220";
+      ctx.fillStyle = cBg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (game.food) {
         const cx = (game.food.x + 0.5) * size;
         const cy = (game.food.y + 0.5) * size;
-        ctx.fillStyle = "#f87171";
+        ctx.fillStyle = cFood;
         ctx.beginPath();
         ctx.arc(cx, cy, size * 0.32, 0, Math.PI * 2);
         ctx.fill();
@@ -134,9 +246,16 @@
       for (let i = game.snake.length - 1; i >= 0; i--) {
         const part = game.snake[i];
         const isHead = i === 0;
-        const t = i / Math.max(1, game.snake.length - 1);
+        const t = i / Math.max(1, game.snake.length -  1);
         const inset = size * (isHead ? 0.05 : 0.1 + t * 0.05);
-        ctx.fillStyle = isHead ? "#86efac" : `hsl(145, ${65 - t * 30}%, ${50 - t * 12}%)`;
+
+        if (isHead) {
+          ctx.fillStyle = cHead;
+        } else {
+          const sat = Math.max(0, cBodyS - t * 30);
+          const lit = Math.max(0, cBodyL - t * 12);
+          ctx.fillStyle = `hsl(${cBodyH}, ${sat}%, ${lit}%)`;
+        }
         roundRect(part.x * size + inset, part.y * size + inset, size - inset * 2, size - inset * 2, size * 0.3);
         ctx.fill();
       }
@@ -148,7 +267,7 @@
       const hy = (head.y + 0.5) * size;
       const off = size * 0.18;
       for (const sign of [-1, 1]) {
-        ctx.fillStyle = "#0b1220";
+        ctx.fillStyle = cEyes;
         ctx.beginPath();
         ctx.arc(
           hx + dir[0] * off * 0.7 + -dir[1] * off * sign,
@@ -249,7 +368,11 @@
     }, { passive: true });
 
     actionBtn.addEventListener("click", onAction);
+    themeBtn.addEventListener("click", toggleTheme);
     window.addEventListener("resize", () => { resizeCanvas(); draw(); });
+
+    // Init theme
+    applyTheme(getTheme());
 
     resizeCanvas();
     syncOverlay();
