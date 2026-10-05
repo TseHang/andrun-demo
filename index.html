@@ -6,33 +6,234 @@
   <title>🧮 Math Speed Challenge — Mental Addition</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
-    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 560px; width: 100%; padding: 2.5rem 2rem; text-align: center; }
+
+    /* ── Animated gradient background ── */
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(-45deg, #f5f7fa, #dae2f0, #e0f0f5, #f5f7fa);
+      background-size: 400% 400%;
+      animation: bgShift 16s ease infinite;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    @keyframes bgShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── Floting card ── */
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      max-width: 560px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
     h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
     .sub { font-size: 0.85rem; color: #8b95aa; margin-bottom: 1.5rem; }
+
+    /* ── Timer ── */
+    .timer-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .timer-ring {
+      position: relative;
+      width: 56px;
+      height: 56px;
+    }
+    .timer-ring svg {
+      transform: rotate(-90deg);
+      width: 56px;
+      height: 56px;
+    }
+    .timer-ring .bg-ring {
+      fill: none;
+      stroke: #e2e6ee;
+      stroke-width: 4;
+    }
+    .timer-ring .progress-ring {
+      fill: none;
+      stroke: #19a974;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 138.23;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.3s linear, stroke 0.3s;
+    }
+    .timer-ring .progress-ring.warning {
+      stroke: #f5a623;
+    }
+    .timer-ring .progress-ring.denger {
+      stroke: #e3495c;
+      animation: pulseRing 0.6s ease-in-out infinite;
+    }
+    @keyframes pulseRing {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+    .timer-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #55657a;
+    }
+    .timer-text.warning { color: #f5a623; }
+    .timer-text.denger  { color: #e3495c; }
+
     .game-area { margin: 1rem 0; }
-    .numbers { font-size: 2.5rem; font-weight: bold; letter-spacing: 0.1em; color: #1e293b; min-height: 4rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
-    .numbers span { background: #eef0f5; padding: 0.25rem 0.75rem; border-radius: 0.5rem; }
+
+    /* ── Numbers ── */
+    .numbers {
+      font-size: 2.5rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      color: #1e293b;
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .numbers span {
+      background: #eef0f5;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.5rem;
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .numbers .plus { background: transparent; }
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.4) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
     .plus { color: #8b95aa; font-size: 2rem; }
-    .input-row { display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin: 1.5rem 0; flex-wrap: wrap; }
-    .input-row input { font-size: 1.5rem; width: 140px; padding: 0.5rem 0.75rem; border: 2px solid #d0d6e0; border-radius: 0.5rem; text-align: center; outline: none; transition: border-color 0.15s; }
-    .input-row input:focus { border-color: #19a974; }
-    .input-row button { font-size: 1.25rem; padding: 0.5rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: transform 0.1s; }
+
+    /* ── Input row ── */
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+    .input-row input {
+      font-size: 1.5rem;
+      width: 140px;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid #d0d6e0;
+      border-radius: 0.5rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-row input:focus {
+      border-color: #19a974;
+      box-shadow: 0 0 0 3px rgba(25, 169, 116, 0.2), 0 0 20px rgba(25, 169, 116,   0.08);
+    }
+    .input-row button {
+      font-size: 1.25rem;
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .input-row button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
     .btn-submit { background: #19a974; color: #fff; }
     .btn-submit:active { transform: scale(0.96); }
     .btn-next { background: #4a7cf7; color: #fff; }
     .btn-next:active { transform: scale(0.96); }
-    .feedback { font-size: 1.25rem; font-weight: 600; min-height: 2.5rem; margin: 0.75rem 0; }
+
+    /* ── Feedback ── */
+    .feedback {
+      font-size: 1.25rem;
+      font-weight: 600;
+      min-height: 2.5rem;
+      margin: 0.75rem 0;
+      animation: slideDown 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes slideDown {
+      0%   { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
     .correct { color: #19a974; }
     .wrong { color: #e3495c; }
-    .stats { display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0 0.5rem; font-size: 1.125rem; }
-    .stats span { background: #f0f3f8; padding: 0.25rem 1rem; border-radius: 0.5rem; }
-    .stats strong { font-size: 1.25rem; }
-    .difficulty { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
-    .difficulty button { font-size: 0.9rem; padding: 0.3rem 0.9rem; border: 2px solid #d0d6e0; border-radius: 0.5rem; cursor: pointer; background: #fff; transition: all 0.1s; }
-    .difficulty button.active { border-color: #19a974; background: #e8faf1; font-weight: 600; }
+
+    /* ── Stats ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.125rem;
+    }
+    .stats span {
+      background: #f0f3f8;
+      padding: 0.25rem 1rem;
+      border-radius: 0.5rem;
+    }
+    .stats strong {
+      font-size: 1.25rem;
+      display: inline-block;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .stats strong.bump {
+      transform: scale(1.35);
+    }
+
+    /* ── Difficulty ── */
+    .difficulty {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .difficulty button {
+      font-size: 0.9rem;
+      padding: 0.3rem 0.9rem;
+      border: 2px solid #d0d6e0;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s;
+    }
+    .difficulty button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+    .difficulty button.active {
+      border-color: #19a974;
+      background: #e8faf1;
+      font-weight: 600;
+    }
     .difficulty button:active { transform: scale(0.96); }
-    .footer { margin-top: 1.5rem; font-size: 0.85rem; color: #8b95aa; }
+
+    .footer {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #8b95aa;
+    }
   </style>
 </head>
 <body>
@@ -44,6 +245,16 @@
       <button data-level="easy">🟢 Easy (2 nums)</button>
       <button data-level="medium" class="active">🟡 Medium (3 nums)</button>
       <button data-level="hard">🔴 Hard (4 nums)</button>
+    </div>
+
+    <div class="timer-row">
+      <div class="timer-ring" id="timerRing">
+        <svg viewBox="0 0 56 56">
+          <circle class="bg-ring" cx="28" cy="28" r="22"/>
+          <circle class="progress-ring" id="progressRing" cx="28" cy="28" r="22"/>
+        </svg>
+        <span class="timer-text" id="timerText">15</span>
+      </div>
     </div>
 
     <div class="game-area">
@@ -66,38 +277,114 @@
     </div>
 
     <div class="footer">
-      Powered by <code>src/sum.js</code> &bull; Train your brain
+      Powered by Deepseek V4 Flash &bull; Train your brain
     </div>
   </div>
 
   <script type="module">
+    /* ── Difficulty config ── */
     const difficulty = {
-      easy:   { count: 2, max: 20 },
-      medium: { count: 3, max: 50 },
-      hard:   { count: 4, max: 99 }
+      easy:   { count: 2, max: 20, time: 15 },
+      medium: { count: 3, max: 50, time: 12 },
+      hard:   { count: 4, max: 99, time: 10 }
     };
 
-    let currentLevel = 'medium';
-    let correctAnswer = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    let answered = false;
+    /* ── State ── */
+    let currentLevel   = 'medium';
+    let correctAnswer  = 0;
+    let correctCount   = 0;
+    let wrongCount     = 0;
+    let answered       = false;
+    let questionStart  = 0;
+    let timerId        = null;
+    let timeRemaining  = 0;
 
+    /* ── DOM refs ── */
     const numbersDisplay = document.getElementById('numbersDisplay');
-    const answerInput   = document.getElementById('answerInput');
-    const submitBtn     = document.getElementById('submitBtn');
-    const nextBtn       = document.getElementById('nextBtn');
-    const feedback      = document.getElementById('feedback');
-    const correctSpan   = document.getElementById('correctCount');
-    const wrongSpan     = document.getElementById('wrongCount');
-    const diffBtns      = document.querySelectorAll('.difficulty button');
+    const answerInput    = document.getElementById('answerInput');
+    const submitBtn      = document.getElementById('submitBtn');
+    const nextBtn        = document.getElementById('nextBtn');
+    const feedback       = document.getElementById('feedback');
+    const correctSpan    = document.getElementById('correctCount');
+    const wrongSpan      = document.getElementById('wrongCount');
+    const diffBtns       = document.querySelectorAll('.difficulty button');
+    const progressRing   = document.getElementById('progressRing');
+    const timerText      = document.getElementById('timerText');
 
+    const CIRC = 2 * Math.PI * 22;
+
+    /* ── Helpers ── */
     function rand(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    function bumpStat(el) {
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+
+    /* ── Timer control ── */
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer(seconds) {
+      stopTimer();
+      timeRemaining = seconds;
+      updateTimerDisplay();
+
+      timerId = setInterval(() => {
+        timeRemaining -= 0.1;
+        if (timeRemaining <= 0) {
+          timeRemaining = 0;
+          updateTimerDisplay();
+          stopTimer();
+          if (!answered) {
+            answerInput.disabled = true;
+            submitBtn.hidden = true;
+            nextBtn.hidden = false;
+            answered = true;
+            wrongCount++;
+            wrongSpan.textContent = wrongCount;
+            bumpStat(document.getElementById('wrongCount'));
+            feedback.textContent = '⏰ Time is up! Answer was ' + correctAnswer;
+            feedback.className = 'wrong';
+            nextBtn.focus();
+          }
+        } else {
+          updateTimerDisplay();
+        }
+      }, 100);
+    }
+
+    function updateTimerDisplay() {
+      const total = difficulty[currentLevel].time;
+      const frac  = Math.max(0, timeRemaining / total);
+      const offset = CIRC * (1 - frac);
+      progressRing.style.strokeDashoffset = offset;
+
+      const secs = Math.ceil(timeRemaining);
+      timerText.textContent = secs;
+
+      progressRing.classList.remove('warning', 'denger');
+      timerText.classList.remove('warning', 'denger');
+      if (timeRemaining <= 3) {
+        progressRing.classList.add('denger');
+        timerText.classList.add('denger');
+      } else if (timeRemaining <= 6) {
+        progressRing.classList.add('warning');
+        timerText.classList.add('warning');
+      }
+    }
+
+    /* ── Game logic ── */
     function newQuestion() {
-      const { count, max } = difficulty[currentLevel];
+      const { count, max, time } = difficulty[currentLevel];
       const nums = [];
       for (let i = 0; i < count; i++) {
         nums.push(rand(1, max));
@@ -106,20 +393,28 @@
 
       let html = '';
       nums.forEach((n, i) => {
-        if (i > 0) html += ' <span class="plus">+</span>';
-        html += '<span>' + n + '</span>';
+        if (i > 0) html += ' <span class="plus" style="animation-delay:' + (i * 0.08) + 's">+</span>';
+        html += '<span style="animation-delay:' + ((i * 0.08) + 0.05) + 's">' + n + '</span>';
       });
-      html += ' <span class="plus">=</span> <span style="color:#8b95aa;">?</span>';
+      html += ' <span class="plus" style="animation-delay:' + (nums.length * 0.08 + 0.05) + 's">=</span>';
+      html += ' <span style="color:#8b95aa; animation-delay:' + (nums.length * 0.08 + 0.1) + 's">?</span>';
       numbersDisplay.innerHTML = html;
 
       answerInput.value = '';
       answerInput.disabled = false;
-      answerInput.focus();
       submitBtn.hidden = false;
       nextBtn.hidden = true;
       feedback.textContent = '';
       feedback.className = '';
       answered = false;
+      questionStart = performance.now();
+
+      progressRing.classList.remove('warning', 'denger');
+      timerText.classList.remove('warning', 'denger');
+
+      startTimer(time);
+
+      answerInput.focus();
     }
 
     function checkAnswer() {
@@ -136,24 +431,30 @@
       }
 
       answered = true;
+      stopTimer();
       answerInput.disabled = true;
       submitBtn.hidden = true;
       nextBtn.hidden = false;
 
+      const elapsed = ((performance.now() - questionStart) / 1000).toFixed(2);
+
       if (guess === correctAnswer) {
         correctCount++;
-        feedback.textContent = '✅ Correct! ' + correctAnswer;
+        feedback.textContent = '✅ Correct! ' + correctAnswer + '  (' + elapsed + 's)';
         feedback.className = 'correct';
+        bumpStat(correctSpan);
       } else {
         wrongCount++;
-        feedback.textContent = '❌ Not quite… answer is ' + correctAnswer;
+        feedback.textContent = '❌ Not quite… answer is ' + correctAnswer + '  (' + elapsed + 's)';
         feedback.className = 'wrong';
+        bumpStat(wrongSpan);
       }
       correctSpan.textContent = correctCount;
       wrongSpan.textContent   = wrongCount;
       nextBtn.focus();
     }
 
+    /* ── Event listeners ── */
     submitBtn.addEventListener('click', checkAnswer);
     answerInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') checkAnswer();
@@ -173,6 +474,7 @@
       });
     });
 
+    /* ── Kick off ── */
     newQuestion();
   </script>
 </body>
