@@ -3,177 +3,258 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧮 Math Speed Challenge — Mental Addition</title>
+  <title>🐍 Snake</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: #f5f7fa; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
-    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 560px; width: 100%; padding: 2.5rem 2rem; text-align: center; }
-    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
-    .sub { font-size: 0.85rem; color: #8b95aa; margin-bottom: 1.5rem; }
-    .game-area { margin: 1rem 0; }
-    .numbers { font-size: 2.5rem; font-weight: bold; letter-spacing: 0.1em; color: #1e293b; min-height: 4rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
-    .numbers span { background: #eef0f5; padding: 0.25rem 0.75rem; border-radius: 0.5rem; }
-    .plus { color: #8b95aa; font-size: 2rem; }
-    .input-row { display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin: 1.5rem 0; flex-wrap: wrap; }
-    .input-row input { font-size: 1.5rem; width: 140px; padding: 0.5rem 0.75rem; border: 2px solid #d0d6e0; border-radius: 0.5rem; text-align: center; outline: none; transition: border-color 0.15s; }
-    .input-row input:focus { border-color: #19a974; }
-    .input-row button { font-size: 1.25rem; padding: 0.5rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: transform 0.1s; }
-    .btn-submit { background: #19a974; color: #fff; }
-    .btn-submit:active { transform: scale(0.96); }
-    .btn-next { background: #4a7cf7; color: #fff; }
-    .btn-next:active { transform: scale(0.96); }
-    .feedback { font-size: 1.25rem; font-weight: 600; min-height: 2.5rem; margin: 0.75rem 0; }
-    .correct { color: #19a974; }
-    .wrong { color: #e3495c; }
-    .stats { display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0 0.5rem; font-size: 1.125rem; }
-    .stats span { background: #f0f3f8; padding: 0.25rem 1rem; border-radius: 0.5rem; }
-    .stats strong { font-size: 1.25rem; }
-    .difficulty { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
-    .difficulty button { font-size: 0.9rem; padding: 0.3rem 0.9rem; border: 2px solid #d0d6e0; border-radius: 0.5rem; cursor: pointer; background: #fff; transition: all 0.1s; }
-    .difficulty button.active { border-color: #19a974; background: #e8faf1; font-weight: 600; }
-    .difficulty button:active { transform: scale(0.96); }
-    .footer { margin-top: 1.5rem; font-size: 0.85rem; color: #8b95aa; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+    h1 { font-size: 1.4rem; }
+    .scores { display: flex; gap: 0.75rem; font-size: 0.95rem; }
+    .pill { background: #1e293b; border-radius: 999px; padding: 0.25rem 0.85rem; }
+    .pill strong { color: #4ade80; }
+    .board { position: relative; border: 1px solid #334155; border-radius: 0.75rem; overflow: hidden; }
+    canvas { display: block; width: min(88vw, 460px); height: auto; touch-action: none; }
+    .overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem;
+      text-align: center; background: rgba(8, 12, 22, 0.85);
+    }
+    .overlay[hidden] { display: none; }
+    .overlay h2 { font-size: 1.3rem; }
+    .overlay p { font-size: 0.9rem; color: #94a3b8; max-width: 24ch; }
+    .cta {
+      font: inherit; font-weight: 600; color: #06281a; background: #4ade80;
+      border: none; border-radius: 0.6rem; padding: 0.5rem 1.4rem; cursor: pointer; margin-top: 0.25rem;
+    }
+    .cta:active { transform: scale(0.97); }
+    .help { font-size: 0.8rem; color: #94a3b8; text-align: center; line-height: 1.6; }
+    kbd {
+      background: #1e293b; border: 1px solid #334155; border-bottom-width: 2px;
+      border-radius: 4px; padding: 0 0.35rem; font-family: inherit; font-size: 0.75rem;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🧮 Math Speed Challenge</h1>
-    <p class="sub">Mental Addition — sum the numbers</p>
+  <h1>🐍 Snake</h1>
 
-    <div class="difficulty">
-      <button data-level="easy">🟢 Easy (2 nums)</button>
-      <button data-level="medium" class="active">🟡 Medium (3 nums)</button>
-      <button data-level="hard">🔴 Hard (4 nums)</button>
-    </div>
+  <div class="scores">
+    <span class="pill">🍎 <strong id="score">0</strong></span>
+    <span class="pill">🏆 <strong id="best">0</strong></span>
+  </div>
 
-    <div class="game-area">
-      <div class="numbers" id="numbersDisplay">
-        <span>—</span> <span class="plus">+</span> <span>—</span>
-      </div>
-
-      <div class="input-row">
-        <input type="number" id="answerInput" placeholder="?">
-        <button class="btn-submit" id="submitBtn">↵ Submit</button>
-        <button class="btn-next" id="nextBtn" hidden>Next →</button>
-      </div>
-
-      <div class="feedback" id="feedback"></div>
-    </div>
-
-    <div class="stats">
-      <span>✅ Correct <strong id="correctCount">0</strong></span>
-      <span>❌ Wrong <strong id="wrongCount">0</strong></span>
-    </div>
-
-    <div class="footer">
-      Powered by <code>src/sum.js</code> &bull; Train your brain
+  <div class="board">
+    <canvas id="board" width="400" height="400"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">Ready?</h2>
+      <p id="overlayText">Eat the apples, avoid the walls and your own tail.</p>
+      <button class="cta" id="actionBtn">Start</button>
     </div>
   </div>
 
-  <script type="module">
-    const difficulty = {
-      easy:   { count: 2, max: 20 },
-      medium: { count: 3, max: 50 },
-      hard:   { count: 4, max: 99 }
+  <p class="help">
+    <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd> to steer
+    &bull; <kbd>Space</kbd> pause &bull; <kbd>R</kbd> restart<br>
+    On mobile, swipe on the board.
+  </p>
+
+  <!-- Plain scripts (not modules) so this page works even when opened straight
+       from disk — no dev server or build step needed. -->
+  <script src="./src/snake.js"></script>
+  <script>
+    const { createGame, step, turn, start, togglePause, restart, getStepDelay } = Snake;
+
+    const canvas = document.getElementById("board");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const actionBtn = document.getElementById("actionBtn");
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+
+    const KEYS = {
+      ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+      w: "up", a: "left", s: "down", d: "right",
+      W: "up", A: "left", S: "down", D: "right"
     };
 
-    let currentLevel = 'medium';
-    let correctAnswer = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    let answered = false;
+    let game = createGame({ cols: 20, rows: 20 });
+    let best = 0;
+    let lastStepAt = 0;
 
-    const numbersDisplay = document.getElementById('numbersDisplay');
-    const answerInput   = document.getElementById('answerInput');
-    const submitBtn     = document.getElementById('submitBtn');
-    const nextBtn       = document.getElementById('nextBtn');
-    const feedback      = document.getElementById('feedback');
-    const correctSpan   = document.getElementById('correctCount');
-    const wrongSpan     = document.getElementById('wrongCount');
-    const diffBtns      = document.querySelectorAll('.difficulty button');
-
-    function rand(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    function cellSize() {
+      return canvas.width / game.cols;
     }
 
-    function newQuestion() {
-      const { count, max } = difficulty[currentLevel];
-      const nums = [];
-      for (let i = 0; i < count; i++) {
-        nums.push(rand(1, max));
-      }
-      correctAnswer = nums.reduce((a, b) => a + b, 0);
-
-      let html = '';
-      nums.forEach((n, i) => {
-        if (i > 0) html += ' <span class="plus">+</span>';
-        html += '<span>' + n + '</span>';
-      });
-      html += ' <span class="plus">=</span> <span style="color:#8b95aa;">?</span>';
-      numbersDisplay.innerHTML = html;
-
-      answerInput.value = '';
-      answerInput.disabled = false;
-      answerInput.focus();
-      submitBtn.hidden = false;
-      nextBtn.hidden = true;
-      feedback.textContent = '';
-      feedback.className = '';
-      answered = false;
+    // Keep the canvas crisp on high-DPI screens and in proportion to its CSS width.
+    function resizeCanvas() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const size = Math.round(canvas.clientWidth * dpr) || 400;
+      canvas.width = size;
+      canvas.height = size;
     }
 
-    function checkAnswer() {
-      if (answered) return;
-      const raw = answerInput.value.trim();
-      if (raw === '') {
-        feedback.textContent = 'Please enter your answer';
-        return;
-      }
-      const guess = Number(raw);
-      if (Number.isNaN(guess)) {
-        feedback.textContent = 'Please enter a valid number';
-        return;
+    function roundRect(x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    function draw() {
+      const size = cellSize();
+
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (game.food) {
+        const cx = (game.food.x + 0.5) * size;
+        const cy = (game.food.y + 0.5) * size;
+        ctx.fillStyle = "#f87171";
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.32, 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      answered = true;
-      answerInput.disabled = true;
-      submitBtn.hidden = true;
-      nextBtn.hidden = false;
+      // Tail first so the head lands on top.
+      for (let i = game.snake.length - 1; i >= 0; i--) {
+        const part = game.snake[i];
+        const isHead = i === 0;
+        const t = i / Math.max(1, game.snake.length - 1);
+        const inset = size * (isHead ? 0.05 : 0.1 + t * 0.05);
+        ctx.fillStyle = isHead ? "#86efac" : `hsl(145, ${65 - t * 30}%, ${50 - t * 12}%)`;
+        roundRect(part.x * size + inset, part.y * size + inset, size - inset * 2, size - inset * 2, size * 0.3);
+        ctx.fill();
+      }
 
-      if (guess === correctAnswer) {
-        correctCount++;
-        feedback.textContent = '✅ Correct! ' + correctAnswer;
-        feedback.className = 'correct';
+      // Two eyes pointing where the snake is heading.
+      const dir = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[game.direction];
+      const head = game.snake[0];
+      const hx = (head.x + 0.5) * size;
+      const hy = (head.y + 0.5) * size;
+      const off = size * 0.18;
+      for (const sign of [-1, 1]) {
+        ctx.fillStyle = "#0b1220";
+        ctx.beginPath();
+        ctx.arc(
+          hx + dir[0] * off * 0.7 + -dir[1] * off * sign,
+          hy + dir[1] * off * 0.7 + dir[0] * off * sign,
+          size * 0.09, 0, Math.PI * 2
+        );
+        ctx.fill();
+      }
+    }
+
+    function refresh() {
+      scoreEl.textContent = String(game.score);
+      bestEl.textContent = String(best);
+      draw();
+    }
+
+    function showOverlay(title, text, buttonLabel) {
+      overlayTitle.textContent = title;
+      overlayText.textContent = text;
+      actionBtn.textContent = buttonLabel;
+      overlay.hidden = false;
+    }
+
+    function syncOverlay() {
+      if (game.status === "ready") {
+        showOverlay("Ready?", "Eat the apples, avoid the walls and your own tail.", "Start");
+      } else if (game.status === "paused") {
+        showOverlay("Paused", "The snake is waiting for you.", "Resume");
+      } else if (game.status === "over") {
+        showOverlay("Game over", `You scored ${game.score}. Best: ${best}.`, "Play again");
+      } else if (game.status === "won") {
+        showOverlay("You filled the board! 🏆", `Perfect run: ${game.score} apples.`, "Play again");
       } else {
-        wrongCount++;
-        feedback.textContent = '❌ Not quite… answer is ' + correctAnswer;
-        feedback.className = 'wrong';
+        overlay.hidden = true;
       }
-      correctSpan.textContent = correctCount;
-      wrongSpan.textContent   = wrongCount;
-      nextBtn.focus();
     }
 
-    submitBtn.addEventListener('click', checkAnswer);
-    answerInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') checkAnswer();
-    });
-    nextBtn.addEventListener('click', newQuestion);
+    function begin() {
+      start(game);          // works for ready and paused alike
+      lastStepAt = performance.now();
+      syncOverlay();
+      refresh();
+    }
 
-    diffBtns.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        diffBtns.forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        currentLevel = btn.dataset.level;
-        correctCount = 0;
-        wrongCount   = 0;
-        correctSpan.textContent = '0';
-        wrongSpan.textContent   = '0';
-        newQuestion();
-      });
+    function onAction() {
+      if (game.status === "running") return;
+      if (game.status === "over" || game.status === "won") restart(game);
+      begin();
+    }
+
+    function tick(now) {
+      requestAnimationFrame(tick);
+      if (game.status !== "running") return;
+
+      if (now - lastStepAt < getStepDelay(game.score)) return;
+      lastStepAt = now;
+
+      const result = step(game);
+      if (result.ate && game.score > best) best = game.score;
+      if (game.status !== "running") syncOverlay();
+      refresh();
+    }
+
+    window.addEventListener("keydown", (event) => {
+      const direction = KEYS[event.key];
+      if (direction) {
+        event.preventDefault();
+        if (game.status === "ready") begin();      // steering also starts the game
+        if (game.status === "running") turn(game, direction);
+      } else if (event.key === " ") {
+        event.preventDefault();
+        if (game.status === "ready" || game.status === "over" || game.status === "won") onAction();
+        else { togglePause(game); lastStepAt = performance.now(); syncOverlay(); }
+      } else if (event.key === "r" || event.key === "R") {
+        restart(game);
+        begin();
+      }
     });
 
-    newQuestion();
+    let touchStart = null;
+    canvas.addEventListener("touchstart", (event) => {
+      const t = event.changedTouches[0];
+      touchStart = { x: t.clientX, y: t.clientY };
+    }, { passive: true });
+
+    canvas.addEventListener("touchend", (event) => {
+      if (!touchStart) return;
+      const t = event.changedTouches[0];
+      const dx = t.clientX - touchStart.x;
+      const dy = t.clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;   // a tap, not a swipe
+      const direction = Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? "right" : "left")
+        : (dy > 0 ? "down" : "up");
+      if (game.status === "ready") begin();
+      if (game.status === "running") turn(game, direction);
+    }, { passive: true });
+
+    actionBtn.addEventListener("click", onAction);
+    window.addEventListener("resize", () => { resizeCanvas(); draw(); });
+
+    resizeCanvas();
+    syncOverlay();
+    refresh();
+    requestAnimationFrame(tick);
   </script>
 </body>
 </html>

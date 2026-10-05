@@ -1,5 +1,6 @@
 {
-  "name": "sum-off-by-one",
+  "name": "snake",
+  "description": "Client-side Snake game — open index.html and play.",
   "private": true,
   "type": "module",
   "scripts": { "test": "node --test" }
